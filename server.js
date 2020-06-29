@@ -30,7 +30,16 @@ var table_name="tree2";
 
 app.get("/api/data",function(req,res)
 {
-    pool.query("SELECT jsonb_build_object('type','FeatureCollection','features', jsonb_agg(feature)) FROM (SELECT jsonb_build_object('type','Feature','geometry',ST_AsGeoJSON(geom)::jsonb, 'properties', to_jsonb(row) - 'gid' - 'geom') AS feature FROM (SELECT * FROM "+table_name+") row) features;", (err1, res1) => {
+    pool.query("SELECT jsonb_build_object('type','FeatureCollection','features', jsonb_agg(feature)) FROM (SELECT jsonb_build_object('type','Feature','geometry',ST_AsGeoJSON(geom)::jsonb, 'properties', to_jsonb(row) - 'gid' - 'geom') AS feature FROM (SELECT * FROM "+table_name+" WHERE tree_type='Çam') row) features;", (err1, res1) => {
+
+        if(err1) {return console.log(err1);}
+        res.json(res1.rows[0]["jsonb_build_object"]);
+    });
+});
+
+app.get("/api/data2",function(req,res)
+{
+    pool.query("SELECT jsonb_build_object('type','FeatureCollection','features', jsonb_agg(feature)) FROM (SELECT jsonb_build_object('type','Feature','geometry',ST_AsGeoJSON(geom)::jsonb, 'properties', to_jsonb(row) - 'gid' - 'geom') AS feature FROM (SELECT * FROM "+table_name+" WHERE tree_type='Kavak') row) features;", (err1, res1) => {
 
         if(err1) {return console.log(err1);}
         res.json(res1.rows[0]["jsonb_build_object"]);
@@ -38,7 +47,7 @@ app.get("/api/data",function(req,res)
 });
 
 app.post('/post', function(request, response){
-    pool.query("INSERT INTO "+table_name+" VALUES('"+request.body.tree_type+"',ST_SETSRID(ST_MAKEPOINT("+request.body.Longitude+","+request.body.Latitude+"),4326));", (err1, res1) =>
+    pool.query("INSERT INTO "+table_name+" VALUES('"+request.body.tree_type+"',ST_SETSRID(ST_MAKEPOINT("+request.body.Longitude+","+request.body.Latitude+"),4326),'"+request.body.Height+"');", (err1, res1) =>
     {
         if(err1)
             { console.log(request.body);
