@@ -24,23 +24,39 @@ var vectorSource = new ol.source.Vector({
     format: new ol.format.GeoJSON({ featureProjection: "EPSG:4326" })
 });
 
-var stroke = new ol.style.Stroke({color: 'black', width: 2});
-var fill = new ol.style.Fill({color: 'red'});
-   
+var vectorSource2 = new ol.source.Vector({
+    url:"/api/data2",
+    format: new ol.format.GeoJSON({ featureProjection: "EPSG:4326" })
+});
+
 var markerVectorLayer = new ol.layer.Vector({
     source: vectorSource,
     style: new ol.style.Style({
-        image: new ol.style.RegularShape({
-            fill: fill,
-            stroke: stroke,
-            points: 4,
-            radius: 10,
-            angle: Math.PI / 4
+        image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+            anchor: [0.5, 15],
+            anchorXUnits: 'fraction',
+            anchorYUnits: 'pixels',
+            opacity: 0.75,
+            src: 'https://img.icons8.com/plasticine/100/000000/coniferous-tree.png'
+    }))
     })
+});
+
+var markerVectorLayer2 = new ol.layer.Vector({
+    source: vectorSource2,
+    style: new ol.style.Style({
+        image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+            anchor: [0.5, 15],
+            anchorXUnits: 'fraction',
+            anchorYUnits: 'pixels',
+            opacity: 0.75,
+            src: 'https://img.icons8.com/flat_round/64/000000/tree.png'
+    }))
     })
 });
 
 map.addLayer(markerVectorLayer);
+map.addLayer(markerVectorLayer2);
 var select = new ol.interaction.Select({multiple:false});
 select.on('select', fnHandler);
 map.addInteraction(select);
@@ -56,7 +72,8 @@ function fnHandler(e) {
     var coord = e.mapBrowserEvent.coordinate;
     let features = e.target.getFeatures();
     features.forEach( (feature) => {
-        console.log(feature.getProperties().tree_type);
+        console.log("Tree Type: " + feature.getProperties().tree_type);
+        console.log("Tree Height: " + feature.getProperties().height);
         document.getElementById("tree_type").value=feature.getProperties().tree_type;
     });
     
@@ -77,7 +94,8 @@ function submit()
  
         Latitude: document.getElementById('Latitude').value,
         Longitude: document.getElementById('Longitude').value,
-        tree_type: document.getElementById('tree_type').value
+        tree_type: document.getElementById('tree_type').value,
+        Height: document.getElementById('Height').value
     });
     xhr.send(data);
 }
